@@ -1,6 +1,11 @@
-import * as dotenv from "dotenv";
 import express, {Express, Request, Response} from "express";
 import cors from "cors";
+import * as dotenv from "dotenv";
+import {
+    StatusCodes,
+} from 'http-status-codes';
+
+import { sendOk } from "./helper/ApiResponse";
 
 dotenv.config();
 
@@ -11,9 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
-    res.status(200).json({
-        message: "TEDxITS 2023 API",
-    })
+    sendOk(res, StatusCodes.OK, "TEDxITS 2023 API")
 })
 
 app.listen(PORT, () => {
