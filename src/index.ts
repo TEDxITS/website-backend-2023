@@ -1,21 +1,20 @@
 import express, {Express, Request, Response} from "express";
 import cors from "cors";
-import * as dotenv from "dotenv";
+import {config} from "dotenv";
 import {
     StatusCodes,
 } from 'http-status-codes';
 
 import { sendOk } from "./helper/ApiResponse";
 
-dotenv.config();
+config();
 
 const app: Express = express()
 const PORT = process.env.PORT || 8000;
 
 app.use(cors());
 app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) =>  {
     sendOk(res, StatusCodes.OK, "TEDxITS 2023 API")
 })
 
