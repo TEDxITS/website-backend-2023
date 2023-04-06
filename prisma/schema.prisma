@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email                String                @unique
+  name                 String
+  isVerified           Boolean               @default(false) @map("is_verified")
+  password             String
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  accountVerifications AccountVerification[]
+  bookings             Booking[]
+  forgetPasswords      ForgetPassword[]
+
+  @@map("users")
+}
+
+model Admin {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  bookings  Booking[]
+
+  @@map("admins")
+}
+
+model AccountVerification {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("account_verifications")
+}
+
+model ForgetPassword {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("forget_passwords")
+}
+
+model Ticket {
+  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name          String
+  quota         Int
+  price         Float
+  dateOpen      DateTime        @map("date_open")
+  closeOpen     DateTime        @map("close_open")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  BookingDetail BookingDetail[]
+
+  @@map("tickets")
+}
+
+model Booking {
+  id             String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  orderingUser   String          @map("ordering_user") @db.Uuid
+  totalPrice     Float           @map("total_price")
+  status         BookingStatus   @default(MENUNGGU_PEMBAYARAN)
+  paymentProof   String?         @map("payment_proof")
+  verificator    String?         @db.Uuid
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  bookingDetails BookingDetail[]
+  user           User            @relation(fields: [orderingUser], references: [id])
+  admin          Admin?          @relation(fields: [verificator], references: [id])
+
+  @@map("bookings")
+}
+
+model BookingDetail {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String
+  email       String
+  phoneNumber String   @map("phone_number")
+  qrLink      String?  @map("qr_link")
+  ticketId    String   @map("ticket_id") @db.Uuid
+  bookingId   String   @map("booking_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+  ticket      Ticket   @relation(fields: [ticketId], references: [id])
+
+  @@map("booking_details")
+}
+
+model Payment {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String
+  number    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("payments")
+}
+
+enum BookingStatus {
+  MENUNGGU_PEMBAYARAN
+  MENUNGGU_VERIFIKASI
+  TERVERIFIKASI
+}
