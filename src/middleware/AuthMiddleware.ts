@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 import env from "../config/LoadEnv"
 import { sendError } from "../helper/ApiResponse"
 
-interface UserTokenData extends jwt.JwtPayload {
+export interface UserTokenData extends jwt.JwtPayload {
     sub: string;
     email: string;
     name: string;
@@ -15,7 +15,7 @@ export interface UserToken extends Request {
     user: UserTokenData;
 }
 
-interface AdminTokenData extends jwt.JwtPayload {
+export interface AdminTokenData extends jwt.JwtPayload {
     sub: string;
     email: string;
 }
