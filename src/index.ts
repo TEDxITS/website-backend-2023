@@ -3,11 +3,11 @@ import cors from "cors";
 import { StatusCodes } from "http-status-codes";
 import env from "./config/LoadEnv";
 import { sendOk } from "./helper/ApiResponse";
-import userRouter from "./route/user";
 
 import AuthRouter from "./router/AuthRouter";
 import BookingRouter from "./router/BookingRouter";
 import PaymentRouter from "./router/PaymentRouter";
+import UserRouter from "./router/UserRouter";
 
 const app: Express = express()
 const PORT = env.PORT || 8000;
@@ -23,7 +23,7 @@ app.get("/", (_: Request, res: Response) => {
 app.use("/api/auth", AuthRouter);
 app.use("/api/booking", BookingRouter);
 app.use("/api/payment", PaymentRouter);
-app.use("/api/user", userRouter);
+app.use("/api/user", UserRouter);
 
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
