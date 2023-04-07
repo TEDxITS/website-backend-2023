@@ -7,4 +7,4 @@ export default router
 router.get('/admin-refresh-token', refreshAdminToken)
 router.get('/refresh-token', refreshUserToken)
 router.post('/register', Register);
-router.get('/verifyAccount/:verifyToken', VerifyAccount);
+router.get('/verify-account/:verifyToken', VerifyAccount);
