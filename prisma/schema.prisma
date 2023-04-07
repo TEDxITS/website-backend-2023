@@ -15,6 +15,7 @@ model User {
   password             String
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
+  refreshToken         String?               @map("refresh_token")
   accountVerifications AccountVerification[]
   bookings             Booking[]
   forgetPasswords      ForgetPassword[]
