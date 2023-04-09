@@ -1,17 +1,27 @@
+import { StatusCodes } from "http-status-codes"
+import { CustomError } from "../helper/Error"
 import { TokenType, generateAccessToken, generateRefreshToken } from "../helper/JWTToken"
 import { AdminTokenData, UserTokenData } from "../middleware/AuthMiddleware"
-import { updateAdminRefreshToken, updateUserRefreshToken } from "../repository/AuthRepository"
+import { getAdminById, updateAdminRefreshToken } from "../repository/AdminRepository"
+import { getUserById, updateUserRefreshToken } from "../repository/UserRepository"
 
-export const refreshAdminToken = async (user: AdminTokenData) => {
-    const userId = user.sub
-    const payload = {
-        sub: userId,
-        email: user.email
-    }
-    const newAccessToken = generateAccessToken(TokenType.ADMIN, payload)
-    const newRefreshToken = generateRefreshToken(TokenType.ADMIN, payload)
-
+export const refreshAdminToken = async (userData: AdminTokenData) => {
     try {
+        const userId = userData.sub
+
+        const admin = await getAdminById(userId)
+        
+        if (!admin) {
+            throw new CustomError(StatusCodes.NOT_FOUND, "Admin data not found")
+        }
+
+        const payload = {
+            sub: userId,
+            email: userData.email
+        }
+        const newAccessToken = generateAccessToken(TokenType.ADMIN, payload)
+        const newRefreshToken = generateRefreshToken(TokenType.ADMIN, payload)
+
         await updateAdminRefreshToken(userId, newRefreshToken)
 
         const responseData = {
@@ -21,21 +31,28 @@ export const refreshAdminToken = async (user: AdminTokenData) => {
 
         return responseData
     } catch(err) {
-        throw new Error("Error while updating refresh token")
+        throw err
     }
 }
 
-export const refreshUserToken = async (user: UserTokenData) => {
-    const userId = user.sub
-    const payload = {
-        sub: userId,
-        email: user.email,
-        name: user.name
-    }
-    const newAccessToken = generateAccessToken(TokenType.USER, payload)
-    const newRefreshToken = generateRefreshToken(TokenType.USER, payload)
-
+export const refreshUserToken = async (userData: UserTokenData) => {
     try {
+        const userId = userData.sub
+
+        const user = await getUserById(userId)
+        
+        if (!user) {
+            throw new CustomError(StatusCodes.NOT_FOUND, "User data not found")
+        }
+
+        const payload = {
+            sub: userId,
+            email: userData.email,
+            name: userData.name
+        }
+        const newAccessToken = generateAccessToken(TokenType.USER, payload)
+        const newRefreshToken = generateRefreshToken(TokenType.USER, payload)
+
         await updateUserRefreshToken(userId, newRefreshToken)
 
         const responseData = {
@@ -45,6 +62,6 @@ export const refreshUserToken = async (user: UserTokenData) => {
 
         return responseData
     } catch(err) {
-        throw new Error("Update refresh token failed")
+        throw err
     }
 }
