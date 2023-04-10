@@ -28,7 +28,7 @@ type ResetPassTokenParams = {
 };
 
 export const resetUserPassword = async (req: Request<ResetPassTokenParams>, res: Response) => {
-    const { error, newPassword }: {error: Joi.ValidationError | undefined, newPassword: ResetPasswordRequest | undefined} = await resetPasswordSchema.validate(req.body.password, { abortEarly: false });
+    const { error, value }: {error: Joi.ValidationError | undefined, value: ResetPasswordRequest | undefined} = resetPasswordSchema.validate(req.body, { abortEarly: false });
 
     if (error) {
 		return sendError(res, new CustomError(StatusCodes.BAD_REQUEST, "Wrong Format"), error);
@@ -41,7 +41,7 @@ export const resetUserPassword = async (req: Request<ResetPassTokenParams>, res:
     }
 
     try{   
-        await resetPassword(resetPassToken, newPassword);
+        await resetPassword(resetPassToken, value?.password as string);
 
         return sendOk(res,StatusCodes.OK, "Password Changed Successfully")
     } catch(err){
