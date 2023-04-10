@@ -31,9 +31,12 @@
     "joi": "^17.9.1",
     "jsonwebtoken": "^9.0.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "lodash": "^4.17.21",
 =======
 >>>>>>> 9ce2765 (feat: add forget and reset password feature)
+=======
+>>>>>>> 9ce276500327d2613eb03435c91f3f097c1af78c
     "nodemailer": "^6.9.1",
     "ts-node": "^10.9.1"
   },
