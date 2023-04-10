@@ -34,22 +34,28 @@ export const sendForgetPasswordEmail = async (data: ResetPasswordRequest) => {
 }
 
 export const resetPassword = async (resetPassToken: string, newPassword: string) => {
-    const Token = await db.forgetPassword.findUnique({
+    const Data = await db.forgetPassword.findUnique({
         where: {
             token: resetPassToken
         }
     })
 
-    if(!Token){
+    if(!Data){
         throw new CustomError(StatusCodes.NOT_FOUND, "Token is Invalid");
     }
 
     await db.user.update({
         where: {
-            id: Token.userId
+            id: Data.userId
         },
         data: {
             password: await bcrypt.hash(newPassword, 12)
+        }
+    })
+
+    await db.forgetPassword.delete({
+        where: {
+            token: resetPassToken
         }
     })
 
