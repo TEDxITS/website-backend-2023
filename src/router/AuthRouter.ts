@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { Register, VerifyAccount, refreshAdminToken, refreshUserToken } from "../controller/AuthController";
+import { login, register, loginAdmin, verifyAccount, refreshAdminToken, refreshUserToken } from "../controller/AuthController";
 
 const router = Router()
 export default router
 
-router.get('/admin-refresh-token', refreshAdminToken)
+router.post('/login', login)
+router.post('/register', register);
+router.post('/login-admin', loginAdmin)
 router.get('/refresh-token', refreshUserToken)
-router.post('/register', Register);
-router.get('/verify-account/:verifyToken', VerifyAccount);
+router.get('/admin-refresh-token', refreshAdminToken)
+router.get('/verify-account/:verifyToken', verifyAccount);

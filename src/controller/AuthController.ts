@@ -3,17 +3,20 @@ import jwt from "jsonwebtoken"
 import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import _ from "lodash";
+import Joi from 'joi';
 
+import * as AdminAuthService from "../service/AdminAuthService";
+import * as UserAuthService from "../service/UserAuthService";
 import { AdminTokenData, UserTokenData } from "../middleware/AuthMiddleware";
-import * as AuthService from "../service/AuthService";
 import { sendEmail } from "../service/email";
 import env from "../config/LoadEnv";
 import db from "../config/Db";
 import { sendData, sendError, sendOk } from "../helper/ApiResponse";
 import { CustomError } from "../helper/Error";
 import { GenerateRandomToken, hasOnly } from "./../util/Util";
-
-// import { GenerateRandomToken } from "./../util/Util";
+import { loginSchema } from "../helper/Validation";
+import { LoginRequest } from "../model/AuthModel";
+// import { LoginRequest } from "../model/AuthModel";
 
 type RegisterBody = {
 	name: string;
@@ -21,7 +24,42 @@ type RegisterBody = {
 	password: string;
 };
 
-export const Register = async (
+export const login = async (req: Request, res: Response) => {
+	const { error, value }: {error: Joi.ValidationError | undefined, value: LoginRequest | undefined} = loginSchema.validate(req.body, { abortEarly: false });
+
+	if (error) {
+		sendError(res, new CustomError(StatusCodes.BAD_REQUEST, "Wrong Format"), error);
+		return
+	}
+
+	try {
+		const payload = await UserAuthService.login(value as LoginRequest);
+
+		sendData(res, StatusCodes.OK, payload);
+	} catch(err) {
+		sendError(res, err)
+	}
+}
+
+export const loginAdmin = async (req: Request, res: Response) => {
+	const { error, value }: {error: Joi.ValidationError | undefined, value: LoginRequest | undefined} = loginSchema.validate(req.body, { abortEarly: false });
+
+	if (error) {
+		sendError(res, new CustomError(StatusCodes.BAD_REQUEST, "Wrong Format"), error);
+		return
+	}
+
+	try {
+		const payload = await AdminAuthService.login(value as LoginRequest);
+
+		sendData(res, StatusCodes.OK, payload);
+	} catch(err) {
+		sendError(res, err)
+	}
+}
+
+
+export const register = async (
 	req: Request<{}, {}, RegisterBody>,
 	res: Response
 ) => {
@@ -82,7 +120,7 @@ type VerifyAccountParams = {
 	verifyToken: string;
 };
 
-export const VerifyAccount = async (
+export const verifyAccount = async (
 	req: Request<VerifyAccountParams>,
 	res: Response
 ) => {
@@ -132,7 +170,8 @@ export const refreshAdminToken = (req: Request, res: Response) => {
         }
 
         try {
-            const data  = await AuthService.refreshAdminToken(decoded as AdminTokenData)
+			refreshAdminToken
+            const data  = await AdminAuthService.refreshAdminToken(decoded as AdminTokenData)
 
             sendData(res, StatusCodes.OK, data)
         } catch(err) {
@@ -158,7 +197,7 @@ export const refreshUserToken = (req: Request, res: Response) => {
         }
 
         try {
-            const data  = await AuthService.refreshUserToken(decoded as UserTokenData)
+            const data  = await UserAuthService.refreshUserToken(decoded as UserTokenData)
 
             sendData(res, StatusCodes.OK, data)
         } catch(err) {

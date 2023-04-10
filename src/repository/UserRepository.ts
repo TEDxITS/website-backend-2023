@@ -1,11 +1,23 @@
 
 import db from "../config/Db"
 
-export const getUserById = async (userId: string) => {
+export const getUserById = (userId: string) => {
     try {
         return db.user.findUnique({
             where: {
                 id: userId
+            },
+        })
+    } catch(err) {
+        throw err
+    }
+}
+
+export const getUserByEmail = async (email: string) => {
+    try {
+        return db.user.findUnique({
+            where: {
+                email
             },
         })
     } catch(err) {

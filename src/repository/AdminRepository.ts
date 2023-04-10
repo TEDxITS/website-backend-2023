@@ -12,6 +12,18 @@ export const getAdminById = async (userId: string) => {
     }
 }
 
+export const getAdminByEmail = async (email: string) => {
+    try {
+        return db.admin.findUnique({
+            where: {
+                email
+            },
+        })
+    } catch(err) {
+        throw err
+    }
+}
+
 export const updateAdminRefreshToken = async (userId: string, refreshToken: string) => {
     try { 
         return db.admin.update({
