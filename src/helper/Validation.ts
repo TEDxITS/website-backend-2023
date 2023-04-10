@@ -24,3 +24,7 @@ export const uploadPaymentSchema = Joi.object({
     bookingId: uuidSchema.required(),
     paymentProof: Joi.string().required()
 })
+
+export const forgetPasswordSchema = Joi.object({
+    email: Joi.string().email().required()
+})

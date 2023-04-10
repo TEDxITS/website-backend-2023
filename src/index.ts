@@ -1,12 +1,8 @@
 import express, {Express, Request, Response} from "express";
 import cors from "cors";
-import {
-    StatusCodes,
-} from 'http-status-codes';
-
+import { StatusCodes } from 'http-status-codes';
 import env from "./config/LoadEnv";
 import { sendOk } from "./helper/ApiResponse";
-
 import AuthRouter from "./router/AuthRouter";
 import BookingRouter from "./router/BookingRouter";
 
