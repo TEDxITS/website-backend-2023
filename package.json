@@ -30,7 +30,10 @@
     "http-status-codes": "^2.2.0",
     "joi": "^17.9.1",
     "jsonwebtoken": "^9.0.0",
+<<<<<<< HEAD
     "lodash": "^4.17.21",
+=======
+>>>>>>> 9ce2765 (feat: add forget and reset password feature)
     "nodemailer": "^6.9.1",
     "ts-node": "^10.9.1"
   },
