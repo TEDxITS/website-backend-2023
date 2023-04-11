@@ -33,6 +33,6 @@ export const deleteResetToken = async (token: string) => {
             }
         })
     } catch(err) {
-        
+        throw err;
     }
 }
