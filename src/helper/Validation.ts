@@ -28,7 +28,3 @@ export const uploadPaymentSchema = Joi.object({
 export const forgetPasswordSchema = Joi.object({
     email: Joi.string().email().required()
 })
-
-export const resetPasswordSchema = Joi.object({
-    password: Joi.string().required()
-})
