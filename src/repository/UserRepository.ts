@@ -1,4 +1,3 @@
-
 import db from "../config/Db"
 
 export const getUserById = (userId: string) => {
@@ -38,5 +37,20 @@ export const updateUserRefreshToken = async (userId: string, refreshToken: strin
         })
     } catch(err) {
         throw err
+    }
+}
+
+export const updateUserPasswordById = async (userId: string, password: string) => {
+    try {
+        await db.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                password
+            }
+        })
+    } catch(err){
+        throw err;
     }
 }
