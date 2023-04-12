@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import db from "../config/Db"
 
 export const getUserById = (userId: string) => {
@@ -41,14 +40,14 @@ export const updateUserRefreshToken = async (userId: string, refreshToken: strin
     }
 }
 
-export const updateUserPassword = async (userId: string, newPassword: string) => {
+export const updateUserPasswordById = async (userId: string, password: string) => {
     try {
         await db.user.update({
             where: {
                 id: userId
             },
             data: {
-                password: await bcrypt.hash(newPassword, 12)
+                password
             }
         })
     } catch(err){
