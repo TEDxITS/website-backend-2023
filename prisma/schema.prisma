@@ -48,7 +48,7 @@ model AccountVerification {
 
 model ForgetPassword {
   id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid @unique
   token     String   @unique
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
