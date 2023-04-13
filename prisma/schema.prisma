@@ -62,6 +62,7 @@ model Ticket {
   name          String
   quota         Int
   price         Float
+  type          String
   dateOpen      DateTime        @map("date_open")
   closeOpen     DateTime        @map("close_open")
   createdAt     DateTime        @default(now()) @map("created_at")
