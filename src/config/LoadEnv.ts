@@ -13,6 +13,14 @@ interface Env {
     MAILER_EMAIL: string | undefined;
     MAILER_PASS: string | undefined;
     HASH_SALT: number | undefined;
+    ID_TICKET_EARLY_BIRD_WITH_KIT: string | undefined;
+    ID_TICKET_PRE_SALE_WITH_KIT: string | undefined;
+    ID_TICKET_NORMAL_WITH_KIT: string | undefined;
+    ID_TICKET_EARLY_BIRD_NON_KIT: string | undefined;
+    ID_TICKET_PRE_SALE_NON_KIT: string | undefined;
+    ID_TICKET_NORMAL_NON_KIT: string | undefined;
+    ID_PAYMENT_DANA: string | undefined;
+    ID_PAYMENT_BNI: string | undefined;
 }
 
 interface Config {
@@ -26,6 +34,14 @@ interface Config {
     MAILER_EMAIL: string;
     MAILER_PASS: string;
     HASH_SALT: number;
+    ID_TICKET_EARLY_BIRD_WITH_KIT: string;
+    ID_TICKET_PRE_SALE_WITH_KIT: string;
+    ID_TICKET_NORMAL_WITH_KIT: string;
+    ID_TICKET_EARLY_BIRD_NON_KIT: string;
+    ID_TICKET_PRE_SALE_NON_KIT: string;
+    ID_TICKET_NORMAL_NON_KIT: string;
+    ID_PAYMENT_DANA: string;
+    ID_PAYMENT_BNI: string;
 }
 
 
@@ -41,6 +57,14 @@ const getConfig = (): Env => {
         MAILER_EMAIL: process.env.MAILER_EMAIL,
         MAILER_PASS: process.env.MAILER_PASS,
         HASH_SALT: process.env.HASH_SALT ? Number(process.env.HASH_SALT) : undefined,
+        ID_TICKET_EARLY_BIRD_WITH_KIT: process.env.ID_TICKET_EARLY_BIRD_WITH_KIT,
+        ID_TICKET_PRE_SALE_WITH_KIT: process.env.ID_TICKET_PRE_SALE_WITH_KIT,
+        ID_TICKET_NORMAL_WITH_KIT: process.env.ID_TICKET_NORMAL_WITH_KIT,
+        ID_TICKET_EARLY_BIRD_NON_KIT: process.env.ID_TICKET_EARLY_BIRD_NON_KIT,
+        ID_TICKET_PRE_SALE_NON_KIT: process.env.ID_TICKET_PRE_SALE_NON_KIT,
+        ID_TICKET_NORMAL_NON_KIT: process.env.ID_TICKET_NORMAL_NON_KIT,
+        ID_PAYMENT_DANA: process.env.ID_PAYMENT_DANA,
+        ID_PAYMENT_BNI: process.env.ID_PAYMENT_BNI,
     };
 }
 
