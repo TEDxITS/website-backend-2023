@@ -31,6 +31,8 @@ export interface UserOrAdminToken extends Request {
 }
 
 export const UserAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    console.log("user middleware");
+    
     const bearerHeader = req.headers.authorization
     if (!bearerHeader || !bearerHeader.startsWith("Bearer ")) {
         sendError(res, new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token"))

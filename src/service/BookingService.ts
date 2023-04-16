@@ -43,6 +43,20 @@ export const getBookingById = async (bookingId: string, userId: string, isAdmin:
     }
 }
 
+export const getBookingDetailById = async (bookingId: string) => {
+    try {
+        const booking = await BookingRepository.getBookingDetailById(bookingId)
+
+        if(!booking) {
+            throw new CustomError(StatusCodes.NOT_FOUND, "Booking data does not exist")
+        }
+        
+        return booking
+    } catch(err) {
+        throw err
+    }
+}
+
 export const getBookingDetailsByBookingId = async (userId: string, isAdmin: boolean, bookingId: string) => {
     try {
         let user = null
