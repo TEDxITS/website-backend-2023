@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { sendError, sendOk } from "../helper/ApiResponse";
+import { sendData, sendError, sendOk } from "../helper/ApiResponse";
 import { UserToken, UserTokenData } from "../middleware/AuthMiddleware";
 import _ from "lodash";
 import { UpdateBody } from "../model/UserModel";
@@ -40,4 +40,16 @@ export const EditProfile = async (
 	}
 
 	sendOk(res, 200, "Successfully edited account details");
+};
+
+export const getUserInfo = async (req: Request, res: Response) => {
+	const userId = (req as UserToken).user.sub;
+
+	try {
+		const user = await UserService.getUserInfoById(userId);
+
+		sendData(res, StatusCodes.OK, user);
+	} catch(error) {
+		sendError(res, error)
+	}
 };

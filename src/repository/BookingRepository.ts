@@ -118,7 +118,7 @@ export const createBooking = (userId: string, bookingData: Array<BookingDetailRe
 
             try {
                 for(const bookingDetail of bookingData) {
-                    const {price, dateOpen, closeOpen}: {price: number, dateOpen: Date, closeOpen: Date} = await tx.ticket.update({
+                    const {price, dateOpen, dateClose}: {price: number, dateOpen: Date, dateClose: Date} = await tx.ticket.update({
                         where: {
                             id: bookingDetail.ticketId
                         },
@@ -130,7 +130,7 @@ export const createBooking = (userId: string, bookingData: Array<BookingDetailRe
                         select: {
                             price: true,
                             dateOpen: true,
-                            closeOpen: true,
+                            dateClose: true,
                         }
                     })
 
@@ -138,7 +138,7 @@ export const createBooking = (userId: string, bookingData: Array<BookingDetailRe
                         throw new CustomError(StatusCodes.CONFLICT, "Ticket is not open yet")
                     }
 
-                    if(isAfter(bookingDate, closeOpen)) {
+                    if(isAfter(bookingDate, dateClose)) {
                         throw new CustomError(StatusCodes.CONFLICT, "Ticket is closed")
                     }
 
