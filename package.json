@@ -2,6 +2,9 @@
   "name": "tedxits2023-server",
   "version": "1.0.0",
   "main": "src/index.js",
+  "prisma": {
+    "seed": "ts-node src/seed/seed.ts"
+  },
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon -L src/index.ts",
