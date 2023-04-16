@@ -1,5 +1,4 @@
 import db from "../config/Db"
-import { UpdateBody } from "../model/UserModel"
 
 export const getUserById = (userId: string) => {
     try {
@@ -56,7 +55,6 @@ export const updateUserRefreshToken = async (userId: string, refreshToken: strin
     try { 
         return db.user.update({
             where: {
-    
                 id: userId
             },
             data: {
@@ -83,11 +81,14 @@ export const updateUserPasswordById = async (userId: string, password: string) =
     }
 }
 
-export const updateUserFieldsById = async (userId: string, data: UpdateBody) => {
+export const updateUserFieldsById = async (userId: string, name: string | undefined, password: string | undefined) => {
     try {
         await db.user.update({
-            data: data,
             where: { id: userId },
+            data: {
+                ...(name && {name}),
+                ...(password && {password})
+            },
         });
     } catch (error) {
         throw error

@@ -3,7 +3,7 @@ import { sendError, sendOk } from "../helper/ApiResponse";
 import { UserToken, UserTokenData } from "../middleware/AuthMiddleware";
 import _ from "lodash";
 import { UpdateBody } from "../model/UserModel";
-import { CustomError } from "../helper/Error";
+import { CustomError, parseJoiErrorObject } from "../helper/Error";
 import { StatusCodes } from "http-status-codes";
 import Joi from "joi";
 import { editProfileSchema } from "../helper/Validation";
@@ -25,23 +25,15 @@ export const EditProfile = async (
 		sendError(
 			res,
 			new CustomError(StatusCodes.BAD_REQUEST, "Wrong Format"),
-			error
+			parseJoiErrorObject(error)
 		);
 		return;
 	}
 
-	if (!value) {
-		sendError(
-			res,
-			new CustomError(StatusCodes.BAD_REQUEST, "Empty Body")
-		);
-		return;
-	}
-
-	const sub = (req as UserToken).user.sub;
+	const userId = (req as UserToken).user.sub;
 
 	try {
-		await UserService.updateUserFieldsById(sub, value);
+		await UserService.updateUserFieldsById(userId, value?.name, value?.password);
 	} catch (error) {
 		sendError(res, error);
 		return;
