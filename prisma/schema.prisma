@@ -64,7 +64,7 @@ model Ticket {
   price         Float
   type          String
   dateOpen      DateTime        @map("date_open")
-  closeOpen     DateTime        @map("close_open")
+  dateClose     DateTime        @map("date_close")
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
   BookingDetail BookingDetail[]
