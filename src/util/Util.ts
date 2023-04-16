@@ -35,3 +35,13 @@ export function hasOnly<T extends Object>(
 		props.every((p) => objProps.includes(p))
 	);
 }
+
+export function exclude<T, Key extends keyof T = keyof T>(
+	user: T,
+	keys: Key[]
+): Omit<T, Key> {
+	for (let key of keys) {
+		delete user[key];
+	}
+	return user;
+}
