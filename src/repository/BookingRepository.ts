@@ -46,6 +46,30 @@ export const getBookingById = (id: string) => {
     }
 }
 
+export const getBookingDetailById = (id: string) => {
+    try {
+        return db.bookingDetail.findUnique({
+            where: {
+                id
+            },
+            select: {
+                name: true,
+                email: true,
+                qrLink: true,
+                ticket: {
+                    select: {
+                        name: true,
+                        type: true,
+                        price: true,
+                    }
+                }
+            }
+        })
+    } catch(err) {
+        throw err
+    }
+}
+
 export const getBookingDetailsByBookingId = (bookingId: string) => {
     try {
         return db.bookingDetail.findMany({

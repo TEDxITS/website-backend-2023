@@ -41,6 +41,24 @@ export const getBookingById = async (req: Request, res: Response) => {
     }
 }
 
+export const getBookingDetailById = async (req: Request, res: Response) => {
+    const id = req.params.id
+
+    const {error, value: bookingId}: {error: Joi.ValidationError | undefined, value: string | undefined} = uuidSchema.validate(id)
+    if(error) {
+        sendError(res, new CustomError(StatusCodes.BAD_REQUEST, error.message))
+        return
+    }
+
+    try {
+        const booking = await BookingService.getBookingDetailById(bookingId as string)
+        
+        sendData(res, StatusCodes.OK, booking)
+    } catch(err) {
+        sendError(res, err)
+    }
+}
+
 export const getBookingDetailsByBookingId = async (req: Request, res: Response) => {
     const isAdmin = (req as UserOrAdminToken).isAdmin
     const userId = (req as UserOrAdminToken).user.sub
