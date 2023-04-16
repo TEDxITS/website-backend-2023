@@ -42,3 +42,12 @@ export const resetPasswordSchema = Joi.object({
             "string.base": "Password must be a string",
         })
 })
+
+export const editProfileSchema = Joi.object({
+    name: Joi.string().messages({
+        "string.base": "Name must be a string",
+    }),
+    password: Joi.string().messages({
+        "string.base": "Password must be a string",
+    })
+});
