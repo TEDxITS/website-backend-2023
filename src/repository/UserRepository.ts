@@ -6,6 +6,14 @@ export const getUserById = (userId: string) => {
             where: {
                 id: userId
             },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                isVerified: true,
+                password: true,
+                refreshToken: true
+            }
         })
     } catch(err) {
         throw err
