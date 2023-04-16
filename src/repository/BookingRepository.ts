@@ -3,6 +3,7 @@ import db from "../config/Db"
 import { BookingDetailDataModel, BookingDetailRequest, BookingStatus, UploadPaymentRequest } from "../model/BookingModel"
 import { CustomError } from "../helper/Error"
 import { StatusCodes } from "http-status-codes"
+import { isAfter, isBefore } from "../util/Util"
 
 export const getAllBookings = () => {
     try {
@@ -14,6 +15,8 @@ export const getAllBookings = () => {
                 totalPrice: true,
                 paymentProof: true,
                 verificator: true,
+                isActive: true,
+                deadline: true,
             }
         })
     } catch(err) {
@@ -34,6 +37,8 @@ export const getBookingById = (id: string) => {
                 totalPrice: true,
                 paymentProof: true,
                 verificator: true,
+                isActive: true,
+                deadline: true,
             },
         })
     } catch(err) {
@@ -80,6 +85,8 @@ export const getBookingByUserId = (userId: string) => {
                 totalPrice: true,
                 paymentProof: true,
                 verificator: true,
+                isActive: true,
+                deadline: true,
                 bookingDetails: {
                     select: {
                         id: true,
@@ -103,7 +110,7 @@ export const getBookingByUserId = (userId: string) => {
     }
 }
 
-export const createBooking = (userId: string, bookingData: Array<BookingDetailRequest>) => {
+export const createBooking = (userId: string, bookingData: Array<BookingDetailRequest>, deadline: Date, bookingDate: Date) => {
     try {
         return db.$transaction(async (tx) => {
             // Decrement ticket quota and calculate total price 
@@ -111,7 +118,7 @@ export const createBooking = (userId: string, bookingData: Array<BookingDetailRe
 
             try {
                 for(const bookingDetail of bookingData) {
-                    const {price}: {price: number} = await tx.ticket.update({
+                    const {price, dateOpen, closeOpen}: {price: number, dateOpen: Date, closeOpen: Date} = await tx.ticket.update({
                         where: {
                             id: bookingDetail.ticketId
                         },
@@ -121,9 +128,20 @@ export const createBooking = (userId: string, bookingData: Array<BookingDetailRe
                             }
                             },
                         select: {
-                            price: true
+                            price: true,
+                            dateOpen: true,
+                            closeOpen: true,
                         }
                     })
+
+                    if(isBefore(bookingDate, dateOpen)) {
+                        throw new CustomError(StatusCodes.CONFLICT, "Ticket is not open yet")
+                    }
+
+                    if(isAfter(bookingDate, closeOpen)) {
+                        throw new CustomError(StatusCodes.CONFLICT, "Ticket is closed")
+                    }
+
                     totalPrice += price
                 }
             } catch(err) {
@@ -137,7 +155,8 @@ export const createBooking = (userId: string, bookingData: Array<BookingDetailRe
             const booking = await tx.booking.create({
                 data: {
                     totalPrice,
-                    orderingUser: userId
+                    orderingUser: userId,
+                    deadline
                 },
                 select: {
                     id: true,
@@ -184,6 +203,8 @@ export const uploadPaymentProof = (uploadPaymentData: UploadPaymentRequest) => {
                 totalPrice: true,
                 status: true,
                 paymentProof: true,
+                isActive: true,
+                deadline: true,
             }
         })
     } catch(err) {
@@ -206,6 +227,8 @@ export const verifyBooking = (adminId: string, bookingId: string) => {
                 totalPrice: true,
                 status: true,
                 paymentProof: true,
+                isActive: true,
+                deadline: true,
             }
         })
     } catch(err) {

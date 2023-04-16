@@ -18,7 +18,7 @@ model User {
   refreshToken         String?               @map("refresh_token")
   accountVerifications AccountVerification[]
   bookings             Booking[]
-  forgetPasswords      ForgetPassword[]
+  forgetPasswords      ForgetPassword?
 
   @@map("users")
 }
@@ -48,7 +48,7 @@ model AccountVerification {
 
 model ForgetPassword {
   id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid @unique
+  userId    String   @unique @map("user_id") @db.Uuid
   token     String   @unique
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -80,6 +80,8 @@ model Booking {
   verificator    String?         @db.Uuid
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @updatedAt @map("updated_at")
+  deadline       DateTime
+  isActive       Boolean         @default(true) @map("is_active")
   bookingDetails BookingDetail[]
   user           User            @relation(fields: [orderingUser], references: [id])
   admin          Admin?          @relation(fields: [verificator], references: [id])
