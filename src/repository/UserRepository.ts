@@ -1,6 +1,5 @@
 import db from "../config/Db"
 import { UpdateBody } from "../model/UserModel"
-import * as bcrypt from 'bcrypt'
 
 export const getUserById = (userId: string) => {
     try {
@@ -86,13 +85,8 @@ export const updateUserPasswordById = async (userId: string, password: string) =
 
 export const updateUserFieldsById = async (userId: string, data: UpdateBody) => {
     try {
-        const hashedPassword =
-			data.password && (await bcrypt.hash(data.password, 12));
         await db.user.update({
-            data: {
-                name: data.name,
-                ...(hashedPassword && { password: hashedPassword }),
-            },
+            data: data,
             where: { id: userId },
         });
     } catch (error) {

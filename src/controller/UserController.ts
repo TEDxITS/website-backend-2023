@@ -5,18 +5,35 @@ import _ from "lodash";
 import { UpdateBody } from "../model/UserModel";
 import { CustomError } from "../helper/Error";
 import { StatusCodes } from "http-status-codes";
-import { updateUserFieldsById } from "../repository/UserRepository";
+import Joi from "joi";
+import { editProfileSchema } from "../helper/Validation";
+import * as UserService from "../service/UserService";
 
 export const EditProfile = async (
 	req: Request<{}, { user: UserTokenData }, UpdateBody>,
 	res: Response
 ) => {
-	const data = req.body;
+	const {
+		error,
+		value,
+	}: {
+		error: Joi.ValidationError | undefined;
+		value: UpdateBody | undefined;
+	} = editProfileSchema.validate(req.body, { abortEarly: false });
 
-	if (_.isEmpty(data)) {
+	if (error) {
 		sendError(
 			res,
-			new CustomError(StatusCodes.BAD_REQUEST, "Insufficient Data")
+			new CustomError(StatusCodes.BAD_REQUEST, "Wrong Format"),
+			error
+		);
+		return;
+	}
+
+	if (!value) {
+		sendError(
+			res,
+			new CustomError(StatusCodes.BAD_REQUEST, "Empty Body")
 		);
 		return;
 	}
@@ -24,7 +41,7 @@ export const EditProfile = async (
 	const sub = (req as UserToken).user.sub;
 
 	try {
-		await updateUserFieldsById(sub, data);
+		await UserService.updateUserFieldsById(sub, value);
 	} catch (error) {
 		sendError(res, error);
 		return;
