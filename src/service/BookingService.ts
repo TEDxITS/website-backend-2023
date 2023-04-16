@@ -4,6 +4,7 @@ import * as BookingRepository from '../repository/BookingRepository'
 import { CustomError } from '../helper/Error'
 import { StatusCodes } from 'http-status-codes'
 import { BookingDetailRequest, BookingStatus, UploadPaymentRequest } from '../model/BookingModel'
+import { getTomorrowDeadline, isAfter } from '../util/Util'
 
 export const getAllBookings = async () => {
     try {
@@ -84,12 +85,22 @@ export const getBookingByUserId = async (userId: string) => {
 
 export const createBooking = async (userId: string, bookingData: Array<BookingDetailRequest>) => {
     try {
-        const booking = await BookingRepository.createBooking(userId, bookingData)
+        const user = await UserRepository.getUserById(userId)
+
+        if(!user) {
+            throw new CustomError(StatusCodes.UNAUTHORIZED, "User does not exist")
+        }
+
+        if(user.isVerified === false) {
+            throw new CustomError(StatusCodes.CONFLICT, "User is not verified. Please verify your account first to make a booking")
+        }
+
+        const bookingDate = new Date()
+        const deadline = getTomorrowDeadline()
+        const booking = await BookingRepository.createBooking(userId, bookingData, deadline, bookingDate)
 
         return booking
     } catch(err) {
-        console.log(err);
-        
         throw err
     }
 }
@@ -106,6 +117,15 @@ export const uploadPaymentProof = async (userId: string, uploadPaymentData: Uplo
             throw new CustomError(StatusCodes.UNAUTHORIZED, "User is not authorized to upload payment proof")
         }
 
+        const now = new Date()
+        if(isAfter(now, booking.deadline)) {
+            throw new CustomError(StatusCodes.CONFLICT, "Booking due date has passed")
+        }
+
+        if(booking.isActive === false) {
+            throw new CustomError(StatusCodes.CONFLICT, "Booking is already inactive")
+        }
+        
         if(booking.paymentProof) {
             throw new CustomError(StatusCodes.CONFLICT, "Payment proof is already uploaded")
         }
