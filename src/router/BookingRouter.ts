@@ -7,7 +7,7 @@ export default router
 
 router.get('/', AdminAuthMiddleware, getAllBookings)
 router.get('/:id', UserOrAdminAuthMiddleware, getBookingById)
-router.get('/booking-detail/:id', UserOrAdminAuthMiddleware, getBookingDetailsByBookingId)
+router.get('/booking-detail/booking/:id', UserOrAdminAuthMiddleware, getBookingDetailsByBookingId)
 router.get('/user/:id', UserAuthMiddleware, getUserBookings)
 router.post('/', UserAuthMiddleware, createBooking)
 router.put('/upload-payment', UserAuthMiddleware, uploadPaymentProof)
