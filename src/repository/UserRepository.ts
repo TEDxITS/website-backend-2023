@@ -24,6 +24,33 @@ export const getUserByEmail = async (email: string) => {
     }
 }
 
+export const createUser = async (name: string, email: string, password: string) => {
+    try {
+        return db.user.create({
+            data: {
+                name,
+                email,
+                password
+            }
+        })
+    } catch(err) {
+        throw err
+    }
+}
+
+export const createAccountVerification = async (userId: string, token: string) => {
+    try {
+        return db.accountVerification.create({
+            data: {
+                userId,
+                token
+            }
+        })
+    } catch(err) {
+        throw err
+    }
+}
+
 export const updateUserRefreshToken = async (userId: string, refreshToken: string) => {
     try { 
         return db.user.update({

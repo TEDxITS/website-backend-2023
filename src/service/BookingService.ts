@@ -5,6 +5,7 @@ import { CustomError } from '../helper/Error'
 import { StatusCodes } from 'http-status-codes'
 import { BookingDetailRequest, BookingStatus, UploadPaymentRequest } from '../model/BookingModel'
 import { getTomorrowDeadline, isAfter } from '../util/Util'
+import { EmailType, sendEmail } from '../helper/Email'
 
 export const getAllBookings = async () => {
     try {
@@ -159,6 +160,16 @@ export const verifyBooking = async (adminId: string, bookingId: string) => {
         }
 
         const newBooking = await BookingRepository.verifyBooking(adminId, bookingId)
+
+        const bookingDetails = await BookingRepository.getBookingDetailsByBookingId(bookingId)
+
+        for(const bookingDetail of bookingDetails) {
+            sendEmail({
+                to: bookingDetail.email,
+                type: EmailType.BOOKING_VERIFIED,
+                link: `https://www.tedxits.org/dashboard/history/ticket/${bookingDetail.id}`
+            })
+        }
         
         return newBooking
     } catch(err) {

@@ -3,9 +3,12 @@ import bcrypt from "bcrypt";
 
 import { CustomError } from "../helper/Error"
 import { UserTokenData } from "../middleware/AuthMiddleware"
-import { getUserByEmail, getUserById, updateUserRefreshToken } from "../repository/UserRepository"
+import { createAccountVerification, createUser, getUserByEmail, getUserById, updateUserRefreshToken } from "../repository/UserRepository"
 import { TokenType, generateAccessToken, generateRefreshToken } from "../helper/JWTToken"
 import { LoginRequest } from "../model/AuthModel"
+import env from "../config/LoadEnv";
+import { GenerateRandomToken } from "../util/Util";
+import { EmailType, sendEmail } from "../helper/Email";
 
 export const login = async (data: LoginRequest) => {
     // Check if user exists
@@ -43,6 +46,31 @@ export const login = async (data: LoginRequest) => {
     }
 
     return responseData
+}
+
+export const register = async (name: string, email: string, password: string) => {
+    try {
+        const user = await getUserByEmail(email)
+
+        if(user) {
+            throw new CustomError(StatusCodes.CONFLICT, "Email already registered")
+        }
+
+        const hashedPassword = await bcrypt.hash(password, env.HASH_SALT)
+
+        const createdUser = await createUser(name, email, hashedPassword)
+
+        const verifyToken = GenerateRandomToken();
+        await createAccountVerification(createdUser.id, verifyToken)
+
+        sendEmail({
+            type: EmailType.REGISTRATION_VERIFICATION,
+            to: createdUser.email,
+            link: `https://www.tedxits.org/auth/verify?token=${verifyToken}`
+        })
+    } catch(err) {
+        throw err
+    }
 }
 
 export const refreshUserToken = async (userData: UserTokenData) => {

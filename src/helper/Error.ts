@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client"
 import { StatusCodes, ReasonPhrases } from "http-status-codes"
+import Joi from "joi"
 
 export class CustomError extends Error {
     code: number = StatusCodes.INTERNAL_SERVER_ERROR
@@ -51,4 +52,18 @@ export const getErrorObject = (err: unknown): CustomError => {
     }
 
     return error
+}
+
+export const parseJoiErrorObject = (errors: Joi.ValidationError) => {
+    const err: {[key: string]: any} = {}
+
+    errors.details.forEach((error) => {
+        if(error.path[0] in err) {
+            err[error.path[0] as string].push(error.message)
+        } else {
+            err[error.path[0] as string] = [error.message]
+        }
+    })
+
+    return err
 }
