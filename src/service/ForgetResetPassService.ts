@@ -3,9 +3,10 @@ import bcrypt from "bcrypt";
 
 import { CustomError } from "../helper/Error";
 import { getUserByEmail, updateUserPasswordById } from "../repository/UserRepository";
-import { sendEmail } from "./email";
+import { EmailType, sendEmail } from "../helper/Email";
 import { GenerateRandomToken } from "../util/Util";
 import { createResetToken, deleteResetTokenById, getResetTokenbyToken, getResetTokenbyUserId, updateResetToken } from "../repository/ForgetPasswordRepository";
+import env from "../config/LoadEnv";
 
 export const sendForgetPasswordEmail = async (email: string) => {
     try {
@@ -26,9 +27,9 @@ export const sendForgetPasswordEmail = async (email: string) => {
         }
 
         sendEmail({
-            subject: "Your TEDxITS Account Recovery",
             to: email,
-            html: `Click <a href="https://www.tedxits.org/reset-password/${resetPassToken}" target="_blank">here</a> to recover your account.`
+            type: EmailType.FORGET_PASSWORD,
+            link: `https://www.tedxits.org/auth/reset-password?token=${resetPassToken}`
         })
     } catch(err) {
         throw err;
@@ -42,8 +43,8 @@ export const resetPassword = async (resetPassToken: string, newPassword: any) =>
         if (!data) {
             throw new CustomError(StatusCodes.NOT_FOUND, "Token is invalid");
         }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
+    
+        const hashedPassword = await bcrypt.hash(newPassword, env.HASH_SALT);
     
         await updateUserPasswordById(data.userId, hashedPassword);
     

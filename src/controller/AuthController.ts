@@ -1,22 +1,18 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken"
 import { StatusCodes } from "http-status-codes";
-import bcrypt from "bcrypt";
 import _ from "lodash";
 import Joi from 'joi';
 
 import * as AdminAuthService from "../service/AdminAuthService";
 import * as UserAuthService from "../service/UserAuthService";
 import { AdminTokenData, UserTokenData } from "../middleware/AuthMiddleware";
-import { sendEmail } from "../service/email";
 import env from "../config/LoadEnv";
 import db from "../config/Db";
 import { sendData, sendError, sendOk } from "../helper/ApiResponse";
-import { CustomError } from "../helper/Error";
-import { GenerateRandomToken, hasOnly } from "./../util/Util";
-import { loginSchema } from "../helper/Validation";
-import { LoginRequest } from "../model/AuthModel";
-// import { LoginRequest } from "../model/AuthModel";
+import { CustomError, parseJoiErrorObject } from "../helper/Error";
+import { loginSchema, registerSchema } from "../helper/Validation";
+import { LoginRequest, RegisterRequest } from "../model/AuthModel";
 
 type RegisterBody = {
 	name: string;
@@ -63,56 +59,19 @@ export const register = async (
 	req: Request<{}, {}, RegisterBody>,
 	res: Response
 ) => {
+	const { error, value }: {error: Joi.ValidationError | undefined, value: RegisterRequest | undefined} = registerSchema.validate(req.body, { abortEarly: false });
+	
+	if (error) {
+		sendError(res, new CustomError(StatusCodes.BAD_REQUEST, "Invalid input"), parseJoiErrorObject(error));
+		return
+	}
+
 	try {
-		const data = req.body;
-
-		if (!hasOnly(data, ["email", "name", "password"])) {
-            sendError(res, new CustomError(StatusCodes.BAD_REQUEST, "Insufficient data to register user"));
-			return;
-		}
-
-		const oldUser = await db.user.findUnique({
-			where: { email: data.email },
-		});
-
-		if (oldUser) {
-            sendError(res, new CustomError(StatusCodes.CONFLICT, "Someone with that email already exists"), ["email"]);
-			return;
-		}
-
-		let hashedPassword;
-
-		try {
-			hashedPassword = await bcrypt.hash(data.password, 12);
-		} catch (error) {
-            sendError(res, error, ["password"])
-			return;
-		}
-
-		const newUser = await db.user.create({
-			data: {
-				...req.body,
-				password: hashedPassword,
-				isVerified: false,
-			},
-		});
-
-		const verifyToken = GenerateRandomToken();
-		db.accountVerification
-			.create({
-				data: { userId: newUser.id, token: verifyToken },
-			})
-			.then(() =>
-				sendEmail({
-					subject: "Verify you account for TEDxITS 2023!",
-					to: data.email,
-					html: `Click <a href="https://www.tedxits.org/verify-account/${verifyToken}" target="_blank">here</a> to verify your account.`,
-				})
-			);
-
+		await UserAuthService.register(value?.name as string, value?.email as string, value?.password as string);
+		
 		sendOk(res, 201, "Successfully registered user");
 	} catch (error) {
-        sendError(res, error, null)
+		sendError(res, error)
 	}
 };
 

@@ -10,6 +10,9 @@ interface Env {
     USER_REFRESH_TOKEN_KEY: string | undefined;
     ADMIN_ACCESS_TOKEN_KEY: string | undefined;
     ADMIN_REFRESH_TOKEN_KEY: string | undefined;
+    MAILER_EMAIL: string | undefined;
+    MAILER_PASS: string | undefined;
+    HASH_SALT: number | undefined;
 }
 
 interface Config {
@@ -20,6 +23,9 @@ interface Config {
     USER_REFRESH_TOKEN_KEY: string;
     ADMIN_ACCESS_TOKEN_KEY: string;
     ADMIN_REFRESH_TOKEN_KEY: string;
+    MAILER_EMAIL: string;
+    MAILER_PASS: string;
+    HASH_SALT: number;
 }
 
 
@@ -31,7 +37,10 @@ const getConfig = (): Env => {
         USER_ACCESS_TOKEN_KEY: process.env.USER_ACCESS_TOKEN_KEY,
         USER_REFRESH_TOKEN_KEY: process.env.USER_REFRESH_TOKEN_KEY,
         ADMIN_ACCESS_TOKEN_KEY: process.env.ADMIN_ACCESS_TOKEN_KEY,
-        ADMIN_REFRESH_TOKEN_KEY: process.env.ADMIN_REFRESH_TOKEN_KEY
+        ADMIN_REFRESH_TOKEN_KEY: process.env.ADMIN_REFRESH_TOKEN_KEY,
+        MAILER_EMAIL: process.env.MAILER_EMAIL,
+        MAILER_PASS: process.env.MAILER_PASS,
+        HASH_SALT: process.env.HASH_SALT ? Number(process.env.HASH_SALT) : undefined,
     };
 }
 
