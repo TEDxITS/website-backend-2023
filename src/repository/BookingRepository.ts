@@ -58,6 +58,7 @@ export const getBookingDetailById = (id: string) => {
                 qrLink: true,
                 ticket: {
                     select: {
+                        id: true,
                         name: true,
                         type: true,
                         price: true,
@@ -86,6 +87,7 @@ export const getBookingDetailsByBookingId = (bookingId: string) => {
                     select: {
                         id: true,
                         name: true,
+                        type: true,
                         price: true,
                     }
                 }
@@ -122,6 +124,7 @@ export const getBookingByUserId = (userId: string) => {
                             select: {
                                 id: true,
                                 name: true,
+                                type: true,
                                 price: true,
                             }
                         }
