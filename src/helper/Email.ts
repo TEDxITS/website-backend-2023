@@ -7,12 +7,14 @@ export enum EmailType {
 	REGISTRATION_VERIFICATION = "registration-verification",
 	FORGET_PASSWORD = "forget-password",
 	BOOKING_VERIFIED = "booking-verified",
+	DEADLINE = "deadline",
 }
 
 const EmailSubjectMapping = {
 	[EmailType.REGISTRATION_VERIFICATION]: "Your TEDxITS Account Email Verification",
 	[EmailType.FORGET_PASSWORD]: "Request to Reset Your TEDxITS Account Password",
-	[EmailType.BOOKING_VERIFIED]: "Your TEDxITS Event Booking Has Been Confirmed"
+	[EmailType.BOOKING_VERIFIED]: "Your TEDxITS Event Booking Has Been Confirmed",
+	[EmailType.DEADLINE]: "Urgent Update: TEDxITS Ticket Payment Deadline Changed to 21:00",
 }
 
 const transporter = nodemailer.createTransport({
@@ -32,8 +34,9 @@ const defaultEmailConfig = {
 
 type SendEmailConfig = {
 	to: string;
-	link: string;
+	link?: string;
 	type: EmailType;
+	name: string
 }
 
 const handlebarOptions: NodemailerExpressHandlebarsOptions = {
@@ -55,6 +58,7 @@ export async function sendEmail(config: SendEmailConfig) {
 		...config,
 		subject: EmailSubjectMapping[config.type],
 		context: {
+			name: config.name,
 			link: config.link
 		},
 		template: config.type,
