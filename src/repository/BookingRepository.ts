@@ -130,53 +130,54 @@ export const createBooking = (
 ) => {
 	return db.$transaction(
 		async (tx) => {
-			// Decrement ticket quota and calculate total price
+			// Calculate total price
 			let totalPrice = 0
 
 			try {
 				for (const bookingDetail of bookingData) {
-					const {
-						price,
-						dateOpen,
-						dateClose,
-					}: { price: number; dateOpen: Date; dateClose: Date } =
-						await tx.ticket.update({
-							where: {
-								id: bookingDetail.ticketId,
-							},
-							data: {
-								quota: {
-									decrement: 1,
-								},
-							},
-							select: {
-								price: true,
-								dateOpen: true,
-								dateClose: true,
-							},
-						})
+					const ticketData: {
+						price: number
+						dateOpen: Date
+						dateClose: Date
+					} | null = await tx.ticket.findFirst({
+						where: {
+							id: bookingDetail.ticketId,
+						},
+						select: {
+							price: true,
+							dateOpen: true,
+							dateClose: true,
+						},
+					})
 
-					if (isBefore(bookingDate, dateOpen)) {
+					if (!ticketData) {
+						throw new CustomError(
+							StatusCodes.NOT_FOUND,
+							"Ticket not found"
+						)
+					}
+
+					if (isBefore(bookingDate, ticketData.dateOpen)) {
 						throw new CustomError(
 							StatusCodes.CONFLICT,
 							"Ticket is not open yet"
 						)
 					}
 
-					if (isAfter(bookingDate, dateClose)) {
+					if (isAfter(bookingDate, ticketData.dateClose)) {
 						throw new CustomError(
 							StatusCodes.CONFLICT,
 							"Ticket is closed"
 						)
 					}
 
-					totalPrice += price
+					totalPrice += ticketData.price
 				}
 			} catch (err) {
 				if (err instanceof Prisma.PrismaClientUnknownRequestError) {
 					throw new CustomError(
 						StatusCodes.CONFLICT,
-						"Ticket quota is not available"
+						"Ticket has been sold out"
 					)
 				}
 				throw err
@@ -219,23 +220,72 @@ export const createBooking = (
 }
 
 export const uploadPaymentProof = (uploadPaymentData: UploadPaymentRequest) => {
-	return db.booking.update({
-		where: {
-			id: uploadPaymentData.bookingId,
+	return db.$transaction(
+		async (tx) => {
+			const tickets = await tx.bookingDetail.findMany({
+				where: {
+					bookingId: uploadPaymentData.bookingId,
+				},
+				select: {
+					ticketId: true,
+				},
+			})
+
+			try {
+				tickets.forEach(async (ticket) => {
+					await tx.ticket.update({
+						where: {
+							id: ticket.ticketId,
+						},
+						data: {
+							quota: {
+								decrement: 1,
+							},
+						},
+					})
+				})
+			} catch (err) {
+				if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+					await tx.booking.update({
+						where: {
+							id: uploadPaymentData.bookingId,
+						},
+						data: {
+							status: BookingStatus.KUOTA_HABIS,
+						},
+					})
+
+					throw new CustomError(
+						StatusCodes.CONFLICT,
+						"Ticket has been sold out"
+					)
+				}
+				throw err
+			}
+
+			return await db.booking.update({
+				where: {
+					id: uploadPaymentData.bookingId,
+				},
+				data: {
+					paymentProof: uploadPaymentData.paymentProof,
+					status: BookingStatus.MENUNGGU_VERIFIKASI,
+				},
+				select: {
+					id: true,
+					totalPrice: true,
+					status: true,
+					paymentProof: true,
+					isActive: true,
+					deadline: true,
+				},
+			})
 		},
-		data: {
-			paymentProof: uploadPaymentData.paymentProof,
-			status: BookingStatus.MENUNGGU_VERIFIKASI,
-		},
-		select: {
-			id: true,
-			totalPrice: true,
-			status: true,
-			paymentProof: true,
-			isActive: true,
-			deadline: true,
-		},
-	})
+		{
+			maxWait: 5000,
+			timeout: 10000,
+		}
+	)
 }
 
 export const verifyBooking = (adminId: string, bookingId: string) => {
