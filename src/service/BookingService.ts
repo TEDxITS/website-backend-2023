@@ -8,7 +8,7 @@ import {
 	BookingStatus,
 	UploadPaymentRequest,
 } from "../model/BookingModel"
-import { getTomorrowDeadline, isAfter } from "../util/Util"
+import { getBookingDeadline, isAfter } from "../util/Util"
 import { EmailType, sendEmail } from "../helper/Email"
 
 export const getAllBookings = async () => {
@@ -122,7 +122,7 @@ export const createBooking = async (
 	}
 
 	const bookingDate = new Date()
-	const deadline = getTomorrowDeadline()
+	const deadline = getBookingDeadline()
 	const booking = await BookingRepository.createBooking(
 		userId,
 		bookingData,

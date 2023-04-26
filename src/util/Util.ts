@@ -12,11 +12,27 @@ export const isBefore = (dateA: Date, dateB: Date): boolean => {
 	return dateA.getTime() < dateB.getTime()
 }
 
-export const getTomorrowDeadline = () => {
+export const getBookingDeadline = () => {
 	const now = new Date()
 
-	now.setDate(now.getDate() + 1)
-	now.setHours(now.getHours() + 1)
+	const todayBeforeOneOclock = new Date(now.valueOf())
+	todayBeforeOneOclock.setHours(0, 59, 59, 59)
+	const todayAfterFourOclock = new Date(now.valueOf())
+	todayAfterFourOclock.setHours(4, 0, 0, 1)
+
+	if (
+		isAfter(now, todayBeforeOneOclock) &&
+		isBefore(now, todayAfterFourOclock)
+	) {
+		now.getMinutes() <= 15
+			? now.setHours(now.getHours() + 4)
+			: now.setHours(now.getHours() + 5)
+	} else {
+		now.getMinutes() <= 15
+			? now.setHours(now.getHours() + 1)
+			: now.setHours(now.getHours() + 2)
+	}
+
 	now.setMinutes(0)
 	now.setSeconds(0)
 	now.setMilliseconds(0)
