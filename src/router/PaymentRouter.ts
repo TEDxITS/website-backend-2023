@@ -1,9 +1,9 @@
-import { Router } from "express";
-import * as PaymentController from "../controller/PaymentController";
+import { Router } from "express"
+import * as PaymentController from "../controller/PaymentController"
 
-const paymentRouter = Router();
+const paymentRouter = Router()
 
-paymentRouter.get("/", PaymentController.getAllPayments);
-paymentRouter.get("/:id", PaymentController.getPaymentById);
+paymentRouter.get("/", PaymentController.getAllPayments)
+paymentRouter.get("/:id", PaymentController.getPaymentById)
 
-export default paymentRouter;
+export default paymentRouter
