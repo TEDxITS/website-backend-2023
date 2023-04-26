@@ -121,6 +121,13 @@ export const createBooking = async (
 		)
 	}
 
+	if (bookingData.length > 5) {
+		throw new CustomError(
+			StatusCodes.CONFLICT,
+			"Exceeded maximum booking limit. Maximum booking is 5 tickets"
+		)
+	}
+
 	const bookingDate = new Date()
 	const deadline = getBookingDeadline()
 	const booking = await BookingRepository.createBooking(
