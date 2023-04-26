@@ -1,7 +1,9 @@
-import path from "path";
-import nodemailer from "nodemailer";
-import hbs, {NodemailerExpressHandlebarsOptions} from 'nodemailer-express-handlebars';
-import env from "../config/LoadEnv";
+import path from "path"
+import nodemailer from "nodemailer"
+import hbs, {
+	NodemailerExpressHandlebarsOptions,
+} from "nodemailer-express-handlebars"
+import env from "../config/LoadEnv"
 
 export enum EmailType {
 	REGISTRATION_VERIFICATION = "registration-verification",
@@ -10,9 +12,12 @@ export enum EmailType {
 }
 
 const EmailSubjectMapping = {
-	[EmailType.REGISTRATION_VERIFICATION]: "Your TEDxITS Account Email Verification",
-	[EmailType.FORGET_PASSWORD]: "Request to Reset Your TEDxITS Account Password",
-	[EmailType.BOOKING_VERIFIED]: "Your TEDxITS Event Booking Has Been Confirmed"
+	[EmailType.REGISTRATION_VERIFICATION]:
+		"Your TEDxITS Account Email Verification",
+	[EmailType.FORGET_PASSWORD]:
+		"Request to Reset Your TEDxITS Account Password",
+	[EmailType.BOOKING_VERIFIED]:
+		"Your TEDxITS Event Booking Has Been Confirmed",
 }
 
 const transporter = nodemailer.createTransport({
@@ -21,7 +26,7 @@ const transporter = nodemailer.createTransport({
 		user: env.MAILER_EMAIL,
 		pass: env.MAILER_PASS,
 	},
-});
+})
 
 const defaultEmailConfig = {
 	from: {
@@ -30,10 +35,10 @@ const defaultEmailConfig = {
 	},
 }
 
-type SendEmailConfig = {
-	to: string;
-	link: string;
-	type: EmailType;
+interface SendEmailConfig {
+	to: string
+	link: string
+	type: EmailType
 }
 
 const handlebarOptions: NodemailerExpressHandlebarsOptions = {
@@ -41,13 +46,13 @@ const handlebarOptions: NodemailerExpressHandlebarsOptions = {
 		extname: ".hbs",
 		partialsDir: path.join(__dirname, "../asset/handlebar"),
 		layoutsDir: path.join(__dirname, "../asset/handlebar"),
-		defaultLayout: '',
+		defaultLayout: "",
 	},
 	viewPath: path.join(__dirname, "../asset/handlebar"),
 	extName: ".hbs",
-};
+}
 
-transporter.use("compile", hbs(handlebarOptions));
+transporter.use("compile", hbs(handlebarOptions))
 
 export async function sendEmail(config: SendEmailConfig) {
 	const currentConfig = {
@@ -55,20 +60,20 @@ export async function sendEmail(config: SendEmailConfig) {
 		...config,
 		subject: EmailSubjectMapping[config.type],
 		context: {
-			link: config.link
+			link: config.link,
 		},
 		template: config.type,
 		attachments: [
 			{
-			  filename: "tedxits2023.jpg",
-			  path: path.join(__dirname, "../asset/image/tedxits2023.jpg"),
-			  cid: "tedxits2023",
-			}
-		]
+				filename: "tedxits2023.jpg",
+				path: path.join(__dirname, "../asset/image/tedxits2023.jpg"),
+				cid: "tedxits2023",
+			},
+		],
 	}
-	
+
 	await transporter.sendMail({
-		...currentConfig
-	});
-	transporter.close();
+		...currentConfig,
+	})
+	transporter.close()
 }

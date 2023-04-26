@@ -1,40 +1,31 @@
 import db from "../config/Db"
 
 export const getAdminById = async (userId: string) => {
-    try {
-        return db.admin.findUnique({
-            where: {
-                id: userId
-            },
-        })
-    } catch(err) {
-        throw err
-    }
+	return db.admin.findUnique({
+		where: {
+			id: userId,
+		},
+	})
 }
 
 export const getAdminByEmail = async (email: string) => {
-    try {
-        return db.admin.findUnique({
-            where: {
-                email
-            },
-        })
-    } catch(err) {
-        throw err
-    }
+	return db.admin.findUnique({
+		where: {
+			email,
+		},
+	})
 }
 
-export const updateAdminRefreshToken = async (userId: string, refreshToken: string) => {
-    try { 
-        return db.admin.update({
-            where: {    
-                id: userId
-            },
-            data: {
-                refreshToken
-            }
-        })
-    } catch(err) {
-        throw err
-    }
+export const updateAdminRefreshToken = async (
+	userId: string,
+	refreshToken: string
+) => {
+	return db.admin.update({
+		where: {
+			id: userId,
+		},
+		data: {
+			refreshToken,
+		},
+	})
 }

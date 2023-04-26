@@ -7,100 +7,136 @@ import { sendError } from "../helper/ApiResponse"
 import { CustomError } from "../helper/Error"
 
 export interface UserTokenData extends jwt.JwtPayload {
-    sub: string;
-    email: string;
-    name: string;
+	sub: string
+	email: string
+	name: string
 }
 
 export interface UserToken extends Request {
-    user: UserTokenData;
+	user: UserTokenData
 }
 
 export interface AdminTokenData extends jwt.JwtPayload {
-    sub: string;
-    email: string;
+	sub: string
+	email: string
 }
 
 export interface AdminToken extends Request {
-    user: AdminTokenData;
+	user: AdminTokenData
 }
 
 export interface UserOrAdminToken extends Request {
-    user: AdminTokenData | UserTokenData;
-    isAdmin: boolean;
+	user: AdminTokenData | UserTokenData
+	isAdmin: boolean
 }
 
-export const UserAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    console.log("user middleware");
-    
-    const bearerHeader = req.headers.authorization
-    if (!bearerHeader || !bearerHeader.startsWith("Bearer ")) {
-        sendError(res, new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token"))
-        return 
-    }
+export const UserAuthMiddleware = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	console.log("user middleware")
 
-    const token = bearerHeader.split(" ")[1]
+	const bearerHeader = req.headers.authorization
+	if (!bearerHeader || !bearerHeader.startsWith("Bearer ")) {
+		sendError(
+			res,
+			new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token")
+		)
+		return
+	}
 
-    jwt.verify(token, env.USER_ACCESS_TOKEN_KEY, (err, decoded) => {
-        if (err || decoded === undefined) {
-            sendError(res, new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token"))
-            return 
-        }
-        
-        (req as UserToken).user = decoded as UserTokenData
-        
-        next()
-    })
+	const token = bearerHeader.split(" ")[1]
+
+	jwt.verify(token, env.USER_ACCESS_TOKEN_KEY, (err, decoded) => {
+		if (err || decoded === undefined) {
+			sendError(
+				res,
+				new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token")
+			)
+			return
+		}
+
+		;(req as UserToken).user = decoded as UserTokenData
+
+		next()
+	})
 }
 
-export const AdminAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const bearerHeader = req.headers.authorization
-    if (!bearerHeader || !bearerHeader.startsWith("Bearer ")) {
-        sendError(res, new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token"))
-        return 
-    }
+export const AdminAuthMiddleware = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	const bearerHeader = req.headers.authorization
+	if (!bearerHeader || !bearerHeader.startsWith("Bearer ")) {
+		sendError(
+			res,
+			new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token")
+		)
+		return
+	}
 
-    const token = bearerHeader.split(" ")[1]
+	const token = bearerHeader.split(" ")[1]
 
-    jwt.verify(token, env.ADMIN_ACCESS_TOKEN_KEY, (err, decoded) => {
-        if (err || decoded === undefined) {
-            sendError(res, new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token"))
-            return 
-        }
-        
-        (req as AdminToken).user = decoded as AdminTokenData
-        
-        next()
-    })
+	jwt.verify(token, env.ADMIN_ACCESS_TOKEN_KEY, (err, decoded) => {
+		if (err || decoded === undefined) {
+			sendError(
+				res,
+				new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token")
+			)
+			return
+		}
+
+		;(req as AdminToken).user = decoded as AdminTokenData
+
+		next()
+	})
 }
 
-export const UserOrAdminAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const bearerHeader = req.headers.authorization
-    if (!bearerHeader || !bearerHeader.startsWith("Bearer ")) {
-        sendError(res, new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token"))
-        return 
-    }
+export const UserOrAdminAuthMiddleware = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	const bearerHeader = req.headers.authorization
+	if (!bearerHeader || !bearerHeader.startsWith("Bearer ")) {
+		sendError(
+			res,
+			new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token")
+		)
+		return
+	}
 
-    const token = bearerHeader.split(" ")[1]
+	const token = bearerHeader.split(" ")[1]
 
-    try {
-        const decoded = jwt.verify(token, env.USER_ACCESS_TOKEN_KEY) as UserTokenData
+	try {
+		const decoded = jwt.verify(
+			token,
+			env.USER_ACCESS_TOKEN_KEY
+		) as UserTokenData
 
-        (req as UserOrAdminToken).user = decoded as UserTokenData
-        (req as UserOrAdminToken).isAdmin = false
+		;(req as UserOrAdminToken).user = decoded as UserTokenData
+		;(req as UserOrAdminToken).isAdmin = false
 
-        next()
-    } catch(err) {
-        try {
-            const decoded = jwt.verify(token, env.ADMIN_ACCESS_TOKEN_KEY) as AdminTokenData
+		next()
+	} catch (err) {
+		try {
+			const decoded = jwt.verify(
+				token,
+				env.ADMIN_ACCESS_TOKEN_KEY
+			) as AdminTokenData
 
-            (req as UserOrAdminToken).user = decoded as UserTokenData
-            (req as UserOrAdminToken).isAdmin = true
+			;(req as UserOrAdminToken).user = decoded as UserTokenData
+			;(req as UserOrAdminToken).isAdmin = true
 
-            next()
-        } catch(err) {
-            sendError(res, new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token"))
-            return 
-        }
-    }
+			next()
+		} catch (err) {
+			sendError(
+				res,
+				new CustomError(StatusCodes.UNAUTHORIZED, "Invalid token")
+			)
+			return
+		}
+	}
 }
