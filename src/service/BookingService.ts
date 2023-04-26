@@ -11,6 +11,15 @@ import {
 import { getBookingDeadline, isAfter } from "../util/Util"
 import { EmailType, sendEmail } from "../helper/Email"
 
+const bookingStatusMessageMapping = {
+	[BookingStatus.MENUNGGU_PEMBAYARAN]:
+		"The booking is waiting for payment upload",
+	[BookingStatus.MENUNGGU_VERIFIKASI]:
+		"The booking is waiting for verification",
+	[BookingStatus.TERVERIFIKASI]: "The booking is already verified",
+	[BookingStatus.KUOTA_HABIS]: "The ticket is sold out",
+}
+
 export const getAllBookings = async () => {
 	const bookings = await BookingRepository.getAllBookings()
 
@@ -182,14 +191,11 @@ export const uploadPaymentProof = async (
 	}
 
 	if (booking.status !== BookingStatus.MENUNGGU_PEMBAYARAN) {
-		const currentBookingStatus =
-			booking.status == BookingStatus.MENUNGGU_VERIFIKASI
-				? "waiting for verification"
-				: "already verified"
+		const message = bookingStatusMessageMapping[booking.status]
 
 		throw new CustomError(
 			StatusCodes.CONFLICT,
-			`The booking is not accepting payment proof. It is ${currentBookingStatus}`
+			`Not accepting payment proof. ${message}`
 		)
 	}
 
@@ -208,14 +214,11 @@ export const verifyBooking = async (adminId: string, bookingId: string) => {
 	}
 
 	if (booking.status != BookingStatus.MENUNGGU_VERIFIKASI) {
-		const currentBookingStatus =
-			booking.status == BookingStatus.TERVERIFIKASI
-				? "already verified"
-				: "waiting for payment upload"
+		const message = bookingStatusMessageMapping[booking.status]
 
 		throw new CustomError(
 			StatusCodes.CONFLICT,
-			`The booking is not accepting verification. It is ${currentBookingStatus}`
+			`Not accepting verification. ${message}`
 		)
 	}
 

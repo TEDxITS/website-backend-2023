@@ -155,6 +155,7 @@ model Anthropocene {
 }
 
 enum BookingStatus {
+  KUOTA_HABIS
   MENUNGGU_PEMBAYARAN
   MENUNGGU_VERIFIKASI
   TERVERIFIKASI
