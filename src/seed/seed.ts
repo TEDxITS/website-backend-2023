@@ -12,7 +12,6 @@ async function main() {
 				update: {
 					id: ticket.id,
 					name: ticket.name,
-					quota: ticket.quota,
 					price: ticket.price,
 					type: ticket.type,
 					dateOpen: ticket.dateOpen,
